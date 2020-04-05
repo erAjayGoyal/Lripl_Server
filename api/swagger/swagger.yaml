@@ -1,0 +1,810 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /lripl/api
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /item:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      # used as the method name of the controller
+      operationId: hello
+      responses:
+        "200":
+          description: Category Added Successfully
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/HelloWorldResponse"
+        "500":
+          description: Internal Server error
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ErrorResponse"
+          
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /getUserInfo:
+    x-swagger-router-controller: user
+    post:
+      description: Log in with given user name and password.
+      operationId: getUserInfo
+      parameters:
+        - in: query
+          name: username
+          description: The user to Login.
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/loginSuccessResponse"
+  /login:
+    x-swagger-router-controller: user
+    post:
+      description: Log in with given user name and password.
+      operationId: handleLogin
+      parameters:
+        - in: body
+          name: user
+          description: The user to Login.
+          schema:
+            $ref: '#/definitions/UserLogin'
+      responses:
+        "200":
+         description: Success
+         schema:
+          $ref: "#/definitions/loginSuccessResponse"
+  /mlogin:
+    x-swagger-router-controller: mobileHandler
+    post:
+      description: Log in with mobile
+      operationId: handleMobileLogin
+      parameters:
+        - in: body
+          name: user
+          description: The user to Login.
+          schema:
+            $ref: '#/definitions/UserLoginMobile'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/loginMobileSuccessResponse"
+  /mSaveProfile:
+    x-swagger-router-controller: mobileHandler
+    post:
+      description: Log in with mobile
+      operationId: saveProfileInfo
+      parameters:
+        - in: body
+          name: user
+          description: The user to Login.
+          schema:
+            $ref: '#/definitions/userSaveprofile'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/loginMobileSuccessResponse"
+  /deleteEntity:
+    x-swagger-router-controller: itemController
+    post:
+      description: Log in with mobile
+      operationId: deleteEntity
+      parameters:
+        - in: body
+          name: deleteParam
+          description: The entity To Delete.
+          schema:
+            $ref: '#/definitions/deleteBody'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/loginMobileSuccessResponse"
+             
+  /saveOrders:
+    x-swagger-router-controller: mitemController
+    post:
+      description: Log in with mobile
+      operationId: saveOrdersDetails
+      parameters:
+        - in: body
+          name: user
+          description: The user to Login.
+          schema:
+            $ref: '#/definitions/saveOrders'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/saveOrdersResponse"
+  /sendOtp:
+    x-swagger-router-controller: mobileHandler
+    post:
+      description: Log in with given user name and password.
+      operationId: getOtp
+      parameters:
+        - in: body
+          name: number
+          description: mobbile number for that otp is generated.
+          schema:
+            $ref: '#/definitions/getOtpBody'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getOtpSuccess"
+  /resendOtp:
+    x-swagger-router-controller: mobileHandler
+    post:
+      description: Log in with given user name and password.
+      operationId: resendOtp
+      parameters:
+        - in: body
+          name: number
+          description: mobbile number for that otp is generated.
+          schema:
+            $ref: '#/definitions/getOtpBody'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getOtpSuccess"
+  /verifyOtp:
+    x-swagger-router-controller: mobileHandler
+    post:
+      description: verify the otp for given mobile number.
+      operationId: verifyOtp
+      parameters:
+        - in: body
+          name: number
+          description: mobbile number for that otp is generated.
+          schema:
+            $ref: '#/definitions/verifyOtpBody'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/verifyOtpSuccess"
+  /addBrand:
+    x-swagger-router-controller: itemController
+    post:
+      description: Add Brand to database.
+      operationId: addBrand
+      parameters:
+        - in: body
+          name: brand
+          description: The Brand to Add.
+          schema:
+            $ref: '#/definitions/brandConfig'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/addSuccess"
+  /putEntityData:
+    x-swagger-router-controller: itemController
+    put:
+      description: Add Brand to database.
+      consumes:
+         - multipart/form-data
+      operationId: putEntityData
+      parameters:
+        - in: query
+          name: type
+          description: type of the entity to modify data
+          type: string
+        - in: formData
+          name: name
+          type: string
+          description: name of the entity.
+        - in: formData
+          name: id
+          type: string
+          description: id of the entity.
+        - in: formData
+          name: file
+          type: file
+          description: image of the entityy.
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/addSuccess"
+  /getitemtypes:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: mitemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getCategories
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getMCategorrySuccess"
+  /allCatefories:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: itemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getAllCategories
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getCategorySuccess"
+  /allUsers:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: user
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getUsers
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getUserSuccess"
+  /getorders:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: mitemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getorders
+      parameters:
+        - in: query
+          name: user_id
+          description: The user to create.
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getAllOrdersResponse"
+  /getZone:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: mobileHandler
+    get:
+      description: Returns all zones with states 
+      # used as the method name of the controller
+      operationId: getAllZoneState
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getzoneSuccess"
+  /users:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: mitemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getOrders
+      parameters:
+        - in: query
+          name: user_id
+          description: The user to create.
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getzoneSuccess"     
+  /getSubCategory:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: itemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getSubCategory
+      parameters:
+        - in: query
+          name: item_type_id
+          description: The user to create.
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getSubCategorySuccess"
+  /getStateData:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: itemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getStateData
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getStateSuccess"
+  /getBrandData:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: itemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getBrandData
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getBrandSuccess"
+  /getProduct:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: itemController
+    get:
+      description: Returns all categories 
+      # used as the method name of the controller
+      operationId: getProduct
+      parameters:
+        - in: query
+          name: item_type_id
+          description: Category of the product.
+          type: string
+        - in: query
+          name: item_id
+          description: SubCategory of the product.
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/getProductSuccess"
+  /addCategory:
+    x-swagger-router-controller: itemController
+    post:
+      description: Log in with given user name and password.
+      consumes:
+         - multipart/form-data
+      operationId: addCategory
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          description: image of the category.
+        - in: formData
+          name: name
+          type: string
+          description: Name of the category.
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/addSuccess"
+  /addUser:
+    x-swagger-router-controller: user
+    post:
+      description: Log in with given user name and password.
+      consumes:
+         - multipart/form-data
+      operationId: addUser
+      parameters:
+        - in: formData
+          name: fullName
+          type: string
+          description: full name of the user.
+        - in: formData
+          name: file
+          type: file
+          description: full name of the user.
+        - in: formData
+          name: userId
+          type: string
+          description: User Id of the user.
+        - in: formData
+          name: passWord
+          type: string
+          description: password of the user.
+        - in: formData
+          name: role
+          type: string
+          description: Role of the user.
+        - in: formData
+          name: status
+          type: string
+          description: Status of the user.
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/userCreationSuccess"
+  /addSubCategory:
+    x-swagger-router-controller: itemController
+    post:
+      description: Log in with given user name and password.
+      consumes:
+         - multipart/form-data
+      operationId: addSubCategory
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          description: image of the category.
+        - in: formData
+          name: name
+          type: string
+          description: Name of the category.
+        - in: formData
+          name: item_type_id
+          type: string
+          description: Category id of the add sub category.
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/addSuccess"
+  /addProduct:
+    x-swagger-router-controller: itemController
+    post:
+      description: Log in with given user name and password.
+      consumes:
+         - multipart/form-data
+      operationId: addProduct
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          description: image of the category.
+        - in: formData
+          name: name
+          type: string
+          description: Name of the category.
+        - in: formData
+          name: item_type_id
+          type: string
+          description: Category id of the add sub category.
+        - in: formData
+          name: item_id
+          type: string
+          description: sub category id of the add sub category.
+        - in: formData
+          name: price
+          type: string
+          description: price of the product.
+        - in: formData
+          name: description
+          type: string
+          description: description of the product.
+        - in: formData
+          name: zone_id
+          type: string
+          description: Zone Id of the product.
+        - in: formData
+          name: state_id
+          type: string
+          description: state id of the product.
+        - in: formData
+          name: brand_id
+          type: string
+          description: brand id of the product.
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/addSuccess"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /putProduct:
+    x-swagger-router-controller: itemController
+    put:
+      description: Edit Product Data.
+      consumes:
+         - multipart/form-data
+      operationId: editProduct
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          description: image of the category.
+        - in: formData
+          name: name
+          type: string
+          description: Name of the category.
+        - in: formData
+          name: price
+          type: string
+          description: price of the product.
+        - in: formData
+          name: description
+          type: string
+          description: description of the product.
+        - in: formData
+          name: zone_id
+          type: string
+          description: Zone Id of the product.
+        - in: formData
+          name: state_id
+          type: string
+          description: state id of the product.
+        - in: formData
+          name: brand_id
+          type: string
+          description: brand id of the product.
+        - in: formData
+          name: id
+          type: string
+          description: id of the product.
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/addSuccess"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+           
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  brandConfig:           
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+  HelloWorldResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: object
+  getStateSuccess:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+          format: byte
+  getMCategorrySuccess:
+    type: array
+    items:
+      type: object
+  getBrandSuccess:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+          format: byte
+  getCategorySuccess:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+          format: byte
+          
+  getUserSuccess:
+    type: array
+    items:
+      type: object
+  getAllOrdersResponse:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: object
+  getzoneSuccess:
+    type: array
+    items:
+      type: object
+  getSubCategorySuccess:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+          format: byte
+  getProductSuccess:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+          format: byte
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  UserLogin:           
+    type: object
+    required:
+      - userName
+      - password
+    properties:
+      userName:
+        type: string
+      password:
+        type: string
+  UserLoginMobile:           
+    type: object
+    required:
+      - phonenumber
+      - devicetoken
+      - platform
+      - device
+      - deviceos
+    properties:
+      phonenumber:
+        type: string
+      devicetoken:
+        type: string
+      platform:
+        type: string
+      device:
+        type: string
+      deviceos:
+        type: string
+  userSaveprofile:
+    type: object
+    required:
+      - companyname
+      - emailid
+      - gstnumber
+      - fullname
+      - isactive
+      - phonenumber
+      - roleid
+      - state_id
+    properties:
+      phonenumber:
+        type: string
+      companyname:
+        type: string
+      gstnumber:
+        type: string
+      fullname:
+        type: string
+      isactive:
+        type: boolean
+      roleid:
+        type: string
+      state_id:
+        type: string
+      emailid:
+        type: string
+      profilepicurl:
+        type: string
+        format: byte    # base64-encoded file contents
+  deleteBody:
+    type: object
+    required:
+      - entityType
+      - entityId
+    properties:
+      entityType:
+        type: string
+      entityId:
+        type: string
+  saveOrders:
+    type: object
+    required:
+      - Order
+    properties:
+      Order:
+        type: object
+  putEntityDataConfig:
+    type: object
+    required:
+      - entityType
+      - entityData
+    properties:
+      entityType:
+        type: string
+      entityData:
+        type: object
+        
+  verifyOtpBody:           
+    type: object
+    required:
+      - phonenumber
+      - otp
+    properties:
+      phonenumber:
+        type: string
+      otp:
+        type: string
+  getOtpBody:           
+    type: object
+    required:
+      - phonenumber
+    properties:
+      phonenumber:
+        type: string
+  loginSuccessResponse:
+    properties:
+      message:
+        type: string
+      userInfo:
+        type: object
+  loginMobileSuccessResponse:
+    properties:
+      userInfo:
+        type: object
+  addSuccess:
+    required:
+      - message
+    properties:
+      message:
+        type: object
+  
+  userCreationSuccess:
+    required:
+      - message
+    properties:
+      message:
+        type: object
+        
+  getOtpSuccess:
+    required:
+      - otpObject
+    properties:
+      otpObject:
+        type: object
+  saveOrdersResponse:
+    required:
+      - orderResponse
+    properties:
+      orderResponse:
+        type: object
+  verifyOtpSuccess:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  
+  
+  
+
