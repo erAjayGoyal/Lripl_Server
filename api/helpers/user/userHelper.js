@@ -50,11 +50,13 @@ const handleLogin = async (userObj) => {
             let recivedUser = userFromDatabase[0],
                 verificationPass = false,
                 authtoken = ''
-            if (recivedUser.password){
+            if (recivedUser.password && recivedUser.isactive){
                 verificationPass = comparePassword(recivedUser.password, userObj.password)
+                
                 //vertificationPass = true
             }
             if(verificationPass){
+                console.log('this is aall', verificationPass)
 
                 authToken = await generateJWTForUser(recivedUser.username)
                 successResponse.message = {
@@ -62,6 +64,9 @@ const handleLogin = async (userObj) => {
                     message: 'Authentication successful!',
                     token: authToken
                   }
+
+                  console.log('this is aall successResponse', successResponse)
+
                   response= successResponse
                 
 
@@ -103,7 +108,7 @@ const getUserInfo = async (req, res) => {
     let successResponse = global.post.successResponse,
     errorResponse = global.post.errorResponse
     try {
-        let usernameFromToken = req. decoded.username,
+        let usernameFromToken = req.decoded.username,
             usernameFromReq = req.query.username,
             isUserVerifed = usernameFromToken === usernameFromReq
             response = {
@@ -114,15 +119,20 @@ const getUserInfo = async (req, res) => {
                 statusCode: 200
             }
         if(isUserVerifed){
-           
+           console.log('dddd', isUserVerifed)
         
                 let userFromDatabase = await userDb.getSpecificUserInfo(usernameFromReq)
                 
               
+           console.log('userFromDatabase', userFromDatabase)
                 
-                if (userFromDatabase && userFromDatabase.length > 0) {
+                 if (userFromDatabase && userFromDatabase.length > 0) {
                     let recivedUser = userFromDatabase[0]
                     let roleFromDataBase = await userDb.getRoleData()
+                    if(userFromDatabase[0].roleid){
+                        UsersDataFromDb = changeRoleIdToRoleName(userFromDatabase , roleFromDataBase)
+    
+                    }
                         
                     // if (userFromDatabase) {
                     //     var promisedData = []
@@ -148,11 +158,15 @@ const getUserInfo = async (req, res) => {
                 }
                 
             }
+console.log('response', response)
             successResponse.message = response
             return successResponse
            
         }
         catch (err) {
+            
+           console.log('err', err)
+                
             errorResponse.message = err
             throw errorResponse
     
@@ -229,9 +243,13 @@ const imageUpoad = (req, res) => {
             reqFile && reqFile.originalname  ? object.profilePic= 'images/'+ global.imagePathMap[req.path] +'/' + reqFile.originalname : ''
             
             reqBody.userId ? object.userId = reqBody.userId : ''
-            reqBody.passWord ? object.passWord = encryptPassword(reqBody.passWord) : ''
+            reqBody.passWord && reqBody.passWord.length > 0 ? object.passWord = encryptPassword(reqBody.passWord) : ''
             reqBody.role ? object.roleId = reqBody.role : ''
             reqBody.status === 'Active' ? object.status = true  : object.status = false
+            reqBody.userIdentifier ? object.id = reqBody.userIdentifier : ''
+            reqBody.id ? object.id = reqBody.id : ''
+
+            utilityHelper.compressAndSaveThumb(object.profilePic);
             resolve(object)
         })
      })
@@ -287,6 +305,102 @@ catch (err) {
 }
 }
 
+const putEntityData = async (req, res) => {
+    let successResponse = global.get.successResponse,
+        errorResponse = global.get.errorResponse
+    try {
+        let imgUpResp
+        imgUpResp = await imageUpoad(req, res)
+        await userDb.UpdateSpecifiedEntityData('users', 'user_id', imgUpResp )
+        successResponse.message = 'User Updated Successfully'
+        return successResponse
+        
+    }
+    catch (err) {
+
+        errorResponse.message = err
+        return errorResponse
+
+    }
+}
+
+const getAllImagePathToDelete = async (id ) => {
+    try {
+            let dataFromDb  = {}
+            dataFromDb = await itemDb.getEntityForId('users', 'user_id', id)
+            return dataFromDb
+        
+    }
+    catch (err) {
+
+        errorResponse.message = err
+        return errorResponse
+
+    }
+}
+
+const deleteImageFromPath = async (imagesPathFull) => {
+    try {
+       if(imagesPathFull[0].profilepicurl){
+                    
+ 
+// delete file named 'sample.txt' Synchronously
+let varIf = fs.existsSync(imagesPathFull[0].profilepicurl)
+
+if(varIf){
+    
+    fs.unlinkSync(imagesPathFull[0].profilepicurl);
+
+
+}
+
+}
+                
+            }
+
+        
+ 
+    catch (err) {
+
+        errorResponse.message = err
+        return errorResponse
+
+    }
+}
+
+
+const deleteUser = async (req, res) => {
+    let successResponse = global.get.successResponse,
+        errorResponse = global.get.errorResponse
+    try {
+        let id = req.body.id,
+            imagessTodelfullPayload = []
+
+            
+            imagessTodelfullPayload = await getAllImagePathToDelete(id)
+            if(imagessTodelfullPayload && imagessTodelfullPayload.length > 0){
+                
+            deleteImageFromPath(imagessTodelfullPayload)
+
+            }
+            await itemDb.deleteSepecifedEntity('user_id' , 'users', id)
+        
+
+
+          successResponse.message = `User deleted`
+
+            return successResponse
+        
+    }
+    catch (err) {
+
+        errorResponse.message = err
+        return errorResponse
+
+    }
+}
+
+
 
 
 
@@ -296,7 +410,9 @@ module.exports = {
     handleLogin,
     addUser,
     getUsers,
-    getUserInfo
+    getUserInfo,
+    putEntityData,
+    deleteUser
 }
 
 

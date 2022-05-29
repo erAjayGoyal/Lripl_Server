@@ -257,6 +257,44 @@ const   addUserMobileInfo = (userDetails) => {
 }
 
 
+const    UpdateSpecifiedEntityData= (tableName, identifier, data) => {
+  return new Promise((resolve, reject) => {
+  
+   let query = `SET `
+    
+      query = query + `username = '${data.userId}', fullname = '${data.fullName}', isactive = '${data.status}'` 
+    
+    if(data.profilepicurl && data.profilepicurl.length > 0){
+      
+    query = query + `, profilepicurl = '${data.profilepicurl}'` 
+    }
+    if(data.passWord && data.passWord.length > 0){
+      
+    query = query + `, password = '${data.passWord}'` 
+    }
+
+   
+   
+
+   let putDataQuery = `UPDATE ${tableName} ${query}
+   WHERE "${identifier}" = '${data.id}';`
+   if(putDataQuery !== '') {
+      connection.pool.query(putDataQuery, (error, results) => {
+          if (error) {
+            reject(error)
+          }else{
+            resolve(results)
+          }
+        })
+    }
+    else{
+        reject('Error in Updating  User Data')
+    }
+         
+})
+}
+
+
 module.exports = {
   getSpecificUserInfo,
   addUserToDataBase,
@@ -267,5 +305,6 @@ module.exports = {
   saveUserProfileToDb,
   addUserOnLoginForMobile,
   getDealerRoleId,
-  getUsers
+  getUsers,
+  UpdateSpecifiedEntityData
 }

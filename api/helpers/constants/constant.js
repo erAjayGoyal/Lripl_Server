@@ -43,7 +43,8 @@ module.exports.imagePathMap = {
     '/lripl/api/addSubCategory': 'subCategory',
     '/lripl/api/addProduct': 'product',
     '/lripl/api/putProduct': 'product',
-    '/lripl/api/addUser':'users'
+    '/lripl/api/addUser':'users',
+    '/lripl/api/putUserData': 'users'
 };
 
 module.exports.imagePathMapforEdit = {
@@ -63,8 +64,9 @@ items: 'SubCategory'
 
 module.exports.nonAuthPAth  = [
     '/lripl/api/mlogin',
-    '/lripl/api/mSaveProfile',
     '/lripl/api/sendOtp',
+    '/lripl/api/sendOtpNew',
+    '/lripl/api/verifyOtp',
     '/lripl/api/resendOtp',
     '/lripl/api/login',
     '/images'

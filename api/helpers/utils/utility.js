@@ -6,7 +6,7 @@ const util = require('util');
 
 const readFile = util.promisify(fs.readFile);
 const global = require('../constants/constant')
-
+const sharp = require('sharp')
 const imageReaderAsync = util.promisify(fs.readFile);
 
 const converTimageToBase64 = (imageUrl, imageSrc) => {
@@ -90,10 +90,28 @@ const  compare = (a, b) => {
   return comparison;
 }
 
+
+const  compressAndSaveThumb = (url) =>{
+
+  try{
+    
+    let inPath = path.join(__dirname, '..','../..', 'public', url);
+            
+    let outPath = path.join(__dirname, '..','../..', 'public', 'mobile', url);
+sharp(inPath).resize(200,200) 
+.jpeg({quality : 50}).toFile(outPath); 
+  }
+  catch(e){
+    throw e
+  }
+
+
+}
 module.exports = {
   queryGenerator,
   imageReaderAsync,
   converTimageToBase64,
   createErrorResponse,
-  compare
+  compare,
+  compressAndSaveThumb
 }

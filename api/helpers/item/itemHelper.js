@@ -2,11 +2,15 @@
 const itemDb = require('../db/item')
 const multer = require('multer');
 const global = require('../constants/constant')
+const sharp = require('sharp')
 
 const fs = require('fs')
-const path = require('path')
 const util = require('util');
 const utilityHelper = require('../utils/utility')
+
+
+var path = require('path');
+
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -22,6 +26,7 @@ var storage = multer.diskStorage({
      cb(null, imageStorePath)
     },
     filename: function (req, file, cb) {
+        file.originalname = req.body.name.replace(/ /g, "_");
         cb(null, file.originalname)
     }
 })
@@ -40,39 +45,59 @@ var upload = multer({
 
 
 
+
 const imageUpoad = (req, res) => {
-    return new Promise((resolve, reject) => {
-        upload(req, res, function (err) {
-            if (err) {
-                reject(err)
-            }
-            let reqBody = req.body,
-            reqFile = req.files && req.files.file && req.files.file[0]
-            var object = {
-                name: '',
-                imageurl: ''
-            }               
-            reqBody.name ? object.name = reqBody.name : ''
-            if(req.query && req.query.type){
-                reqFile && reqFile.originalname  ? object.imageurl= 'images/'+ global.imagePathMapforEdit[req.query.type] +'/' + reqFile.originalname : ''
-            
-            }
-            else{
-                reqFile && reqFile.originalname  ? object.imageurl= 'images/'+ global.imagePathMap[req.path] +'/' + reqFile.originalname : ''
-            
-            }
-            
-            reqBody.item_type_id ? object.item_type_id = reqBody.item_type_id : ''
-            reqBody.zoneId ? object.zone_id = reqBody.zoneId : ''
-            reqBody.stateId ? object.state_id = reqBody.stateId : ''
-            reqBody.brandId ? object.brand_id = reqBody.brandId : ''
-            reqBody.item_id ? object.item_id = reqBody.item_id : ''
-            reqBody.description ? object.description = reqBody.description : ''
-            reqBody.price ? object.price = reqBody.price : ''   
-            reqBody.id ? object.id = reqBody.id : ''
-            resolve(object)
+    try{
+        return new Promise((resolve, reject) => {
+        
+            upload(req, res, function (err) {
+                if (err) {
+                    reject(err)
+                }
+                let reqBody = req.body,
+                reqFile = req.files && req.files.file && req.files.file[0]
+                var object = {
+                    name: '',
+                    imageurl: ''
+                }               
+                reqBody.name ? object.name = reqBody.name : ''
+                if(req.query && req.query.type){
+                    reqFile && reqFile.originalname &&  reqBody.name ? object.imageurl= 'images/'+ global.imagePathMapforEdit[req.query.type] +'/' + reqBody.name + '.jpeg' : ''
+                
+                }
+                else{
+                    reqFile && reqFile.originalname && reqBody.name ? object.imageurl= 'images/'+ global.imagePathMap[req.path] +'/' + reqBody.name + '.jpeg' : ''
+                
+                }
+
+                utilityHelper.compressAndSaveThumb(object.imageurl)
+    
+                
+      
+      
+                reqBody.item_type_id ? object.item_type_id = reqBody.item_type_id : ''
+                reqBody.zoneId ? object.zone_id = reqBody.zoneId : ''
+                reqBody.stateId ? object.state_id = reqBody.stateId : ''
+                reqBody.brandId ? object.brand_id = reqBody.brandId : ''
+                reqBody.item_id ? object.item_id = reqBody.item_id : ''
+                reqBody.description ? object.description = reqBody.description : ''
+                reqBody.price ? object.price = reqBody.price : ''   
+                reqBody.id ? object.id = reqBody.id : ''
+                resolve(object)
+
+        
+       
         })
+
     })
+    
+ 
+}
+
+catch(e){
+    throw e;
+}
+
 }
 
 
@@ -169,6 +194,7 @@ const getDataForSpecifiedEntity = async (req, res, entity) => {
                
             }  
             dataFromDb = await itemDb.getProductForSubcategory(productConfig)
+            
                break;
             default:
               // code block

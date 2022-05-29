@@ -59,6 +59,7 @@ async function handleMobileLogin(req, res) {
 async function getOtp(req, res) {
   try {
     let otpInfo =  req.body
+    console.log('hello india ')
     if(otpInfo !== undefined){
       var response = await mobileHelper.getOtp(otpInfo)
       if(response){

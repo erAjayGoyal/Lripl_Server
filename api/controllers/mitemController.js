@@ -12,7 +12,8 @@ const global = require('../helpers/constants/constant')
 module.exports = {
   getCategories,
   saveOrdersDetails,
-  getorders
+  getorders,
+  updateOrdersDetails
 };
 
 
@@ -54,6 +55,21 @@ module.exports = {
       let orderBody =  req.body
       if(orderBody !== undefined){
         var response = await mitemHelper.saveOrderDetails(orderBody)
+        if(response){
+       return res.status(response.statusCode).send(response.message)
+        }
+      }      
+    } catch(err) {      
+      let errorResponse = err
+      return res.status(errorResponse.statusCode).send(errorResponse.message)
+    }
+  }
+
+  async function updateOrdersDetails(req, res) {
+    try {
+      let orderBody =  req.body
+      if(orderBody !== undefined){
+        var response = await mitemHelper.updateOrderDetails(orderBody)
         if(response){
        return res.status(response.statusCode).send(response.message)
         }

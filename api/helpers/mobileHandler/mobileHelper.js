@@ -50,21 +50,29 @@ const handleLogin = async (userObj) => {
         let addUserForMobile = await userDb.addUserOnLoginForMobile(userObj, roleid)
         if(addUserForMobile){
 
-            
-            let userFromDatabase = await userDb.getUserForMobile(userObj.phonenumber.slice(3, userObj.phonenumber.length))
+            let phonenumber = userObj.phonenumber
+            if(phonenumber.includes('+91')){
+                phonenumber = userObj.phonenumber.slice(3, userObj.phonenumber.length)
+
+            }
+            let userFromDatabase = await userDb.getUserForMobile(phonenumber)
             let userInfoAdded =  await userDb.addUserMobileInfo(userObj)
-            if (userInfoAdded &&userFromDatabase && userFromDatabase.length > 0) {
+            if (userFromDatabase && userFromDatabase.length > 0) {
             
 
-                response.message = userFromDatabase[0]
-                response.statusCode = 200
-            }
-            else{
+                let authToken = await generateJWTForUser(userFromDatabase[0].phonenumber)
                 
-                response.message = {}
-                response.statusCode = 400
 
-            }
+            userFromDatabase[0].token =  authToken
+            response.message = userFromDatabase[0]
+            response.statusCode = 200
+        }
+        else{
+            
+            response.message = {}
+            response.statusCode = 400
+
+        }
           
         }
         else{
@@ -125,10 +133,6 @@ const saveUserProfile = async (userObj) => {
             if (userFromDatabase && userFromDatabase.length > 0) {
             
 
-                    let authToken = await generateJWTForUser(userFromDatabase[0].phonenumber)
-                    
-    
-                userFromDatabase[0].token =  authToken
                 response.message = userFromDatabase[0]
                 response.statusCode = 200
             }
@@ -171,13 +175,16 @@ const readData = (otpObject) => {
             fs.writeFile("file/otp.txt", JSON.stringify(otpData), 'utf8', function (err) {
                 if (err) {
                     console.log("An error occured while writing JSON Object to File.");
-                    throw err
+                    throw err                           
                 }
-            
-                console.log("JSON file has been saved.");
-                
-request(`http://sms.gblsms.com/vendorsms/pushsms.aspx?user=laxmi&password=laxmi@333&sid=LRIPLC&msisdn=${otpObject.phonenumber}&msg=Your%20verification%20code%20is%20${otpObject.otp}&gwid=2&fl=0`, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
+
+console.log('dsffsffsdvsdcc', otpObject)
+let url = `http://96.43.140.186/urlsms/index.php?uname=laxmi&pword=laxmi%40%23%24%25&mobile=${otpObject.phonenumber}&msg=Your%20otp%20is%20${otpObject.otp}%20for%20mobile%20app,%20kindly%20enter%20it%20for%20login.%20thank%20you%20-%20%20LRIPL!&sid=LRIPLC&unc=0&content_id=1707163039393297512`
+console.log('url', url)
+request(url, function (error, response, body) {
+
+
+if (!error && response.statusCode == 200) {
       var info = JSON.parse(body)
 
       let responseObj = {
@@ -189,6 +196,7 @@ request(`http://sms.gblsms.com/vendorsms/pushsms.aspx?user=laxmi&password=laxmi@
         message: responseObj,
         statusCode: 200,
     }
+console.log('this is response', response)
     resolve(response)
     }
 

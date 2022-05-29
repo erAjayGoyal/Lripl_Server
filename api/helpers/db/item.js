@@ -18,7 +18,6 @@ const getAllCategories = (userName) => {
             if (error) {
               reject(error)
             }else{
-              console.log('hi', results.rows)
               resolve(results.rows)
             }
           })
@@ -184,7 +183,7 @@ const    UpdateSpecifiedEntityData= (tableName, identifier, data) => {
    if(tableName === 'products'){
 
     
-      query = query + `name = '${data.name}', zone_id = '${data.zone_id}', state_id = '${data.state_id}', brand_id = '${data.brand_id}'` 
+      query = query + `name = '${data.name}', zone_id = '${data.zone_id}', state_id = '${data.state_id}', brand_id = '${data.brand_id}', description = '${data.description}'` 
     
     if(data.imageurl && data.imageurl.length > 0){
       
@@ -410,7 +409,13 @@ const getEntityForId = (tableName , identifier, value) => {
 const getOrderDetails = (param, value) => { 
   return new Promise((resolve, reject) => {
     try {
-      let query = `SELECT * FROM "order" WHERE "${param}" = '${value}'`
+      let query = ``
+      if(value && value.length > 0){
+        query = `SELECT * FROM "order" WHERE "${param}" = '${value}'`
+      }else{
+        query = `SELECT * FROM "order"`
+      }
+      
       if(query !== '') {
         connection.pool.query(query, (error, results) => {
             if (error) {
@@ -433,7 +438,12 @@ const getOrderDetails = (param, value) => {
 const getAllprodForOrder = (value) => { 
   return new Promise((resolve, reject) => {
     try {
-      let query = `SELECT * FROM order_item WHERE "user_id" = '${value}'`
+      let query = ``;
+      if(value && value.length > 0){
+        query = `SELECT * FROM "order_item" WHERE "user_id" = '${value}'`
+      }else{
+        query = `SELECT * FROM "order_item"`
+      }
       if(query !== '') {
         connection.pool.query(query, (error, results) => {
             if (error) {
@@ -482,6 +492,124 @@ const saveOrderDetails = (orderData) => {
          
 })
 }
+
+const updateOrderDetails = (data) => { 
+  return new Promise((resolve, reject) => {
+    try {
+
+
+let query = `SET `
+  
+
+    
+   
+    
+
+
+
+
+
+    if(data.status){
+      query = query + `status = '${data.status}', remarks  = '${JSON.stringify(data.statusTrack)}'` 
+    }
+    
+     
+   
+   
+
+   let putDataQuery = `UPDATE "order" ${query} WHERE order_id = '${data.order_id}';`
+
+
+
+
+
+
+
+
+
+
+
+
+
+      if(putDataQuery !== '') {
+        connection.pool.query(putDataQuery, (error, results) => {
+            if (error) {
+              reject(error)
+            }else{
+              resolve(results.rows)
+            }
+          })
+      }
+      else{
+          reject('Error in inserting order Data')
+      }
+   
+    }
+    catch(err){
+      reject(err)
+
+    }
+    
+         
+})
+}
+
+
+const updateOrderAddOns = (data) => { 
+  return new Promise((resolve, reject) => {
+    try {
+
+
+
+      let putDataQuery =    `INSERT INTO order_status(orderId, statusTrack)
+VALUES ('${data.order_id}','${JSON.stringify(data.trackingStatus)}')
+ON CONFLICT (orderId)
+DO UPDATE SET statusTrack = '${JSON.stringify(data.trackingStatus)}'`
+
+  
+
+    
+   
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      if(putDataQuery !== '') {
+        connection.pool.query(putDataQuery, (error, results) => {
+            if (error) {
+              reject(error)
+            }else{
+              resolve(results.rows)
+            }
+          })
+      }
+      else{
+          reject('Error in inserting order Data')
+      }
+   
+    }
+    catch(err){
+      reject(err)
+
+    }
+    
+         
+})
+}
+
+
 
 
 const getSubGueryForSaveOrders = (productArray, order_id) => {
@@ -558,7 +686,9 @@ module.exports = {
   deleteSepecifedEntity,
   getEntityForId,
   getRoleData,
-  UpdateSpecifiedEntityData
+  UpdateSpecifiedEntityData,
+  updateOrderDetails,
+  updateOrderAddOns
 
 
 }

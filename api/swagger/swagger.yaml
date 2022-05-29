@@ -74,6 +74,22 @@ paths:
          description: Success
          schema:
           $ref: "#/definitions/loginSuccessResponse"
+  /orderDetail:
+    x-swagger-router-controller: mitemcontroller
+    put:
+      description: Log in with given user name and password.
+      operationId: updateOrdersDetails
+      parameters:
+        - in: body
+          name: user
+          description: The user to Login.
+          schema:
+            $ref: '#/definitions/updateOrder'
+      responses:
+        "200":
+         description: Success
+         schema:
+          $ref: "#/definitions/loginSuccessResponse"
   /mlogin:
     x-swagger-router-controller: mobileHandler
     post:
@@ -232,6 +248,64 @@ paths:
           description: Success
           schema:
            $ref: "#/definitions/addSuccess"
+  /putUserData:
+    x-swagger-router-controller: user
+    put:
+      description: Add Brand to database.
+      consumes:
+         - multipart/form-data
+      operationId: updateUser
+      parameters:
+        - in: formData
+          name: fullName
+          type: string
+          description: full name of the user.
+        - in: formData
+          name: file
+          type: file
+          description: full name of the user.
+        - in: formData
+          name: userId
+          type: string
+          description: User Id of the user.
+        - in: formData
+          name: passWord
+          type: string
+          description: password of the user.
+        - in: formData
+          name: role
+          type: string
+          description: Role of the user.
+        - in: formData
+          name: status
+          type: string
+          description: Status of the user.
+        - in: formData
+          name: id
+          type: string
+          description: Unique id of the user.
+        
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/addSuccess"
+  /deleteUser:
+    x-swagger-router-controller: user
+    post:
+      description: Delete the user
+      operationId: deleteUser
+      parameters:
+        - in: body
+          name: deleteParam
+          description: The entity To Delete.
+          schema:
+            $ref: '#/definitions/deleteBodyUser'
+      responses:
+        "200":
+          description: Success
+          schema:
+           $ref: "#/definitions/loginMobileSuccessResponse"
   /getitemtypes:
     # binds a127 app logic to a route
     x-swagger-router-controller: mitemController
@@ -686,12 +760,13 @@ definitions:
         type: string
       deviceos:
         type: string
+  updateOrder:
+    type: object
   userSaveprofile:
     type: object
     required:
       - companyname
       - emailid
-      - gstnumber
       - fullname
       - isactive
       - phonenumber
@@ -726,6 +801,13 @@ definitions:
       entityType:
         type: string
       entityId:
+        type: string
+  deleteBodyUser:
+    type: object
+    required:
+      - id
+    properties:
+      id:
         type: string
   saveOrders:
     type: object
